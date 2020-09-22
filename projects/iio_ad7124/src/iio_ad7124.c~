@@ -1,0 +1,398 @@
+#include <stdlib.h>
+#include <stdio.h>
+#include <inttypes.h>
+#include "error.h"
+#include "iio.h"
+#include "iio_ad7124.h"
+
+ssize_t ad1724_iio_read_configuration(void *device, char *buf, size_t len,
+			const struct iio_ch_info *channel)
+{
+	struct ad7124_dev	*desc = device;
+	uint32_t		value;
+	uint8_t			config_no;
+
+	sscanf(buf, "%d", &config_no);
+
+	ad7124_read_register(desc, &desc->regs[(AD7124_CFG0_REG + config_no)]);
+	value = desc->regs[(AD7124_CFG0_REG + config_no)].value;
+
+	return snprintf(buf, len, "%"PRIu32"", value);
+}
+
+ssize_t ad1724_iio_change_configuration(void *device, char *buf, size_t len,
+			const struct iio_ch_info *channel)
+{
+	struct ad7124_dev *desc = device;
+	uint8_t			chan_no;
+	uint16_t		reg_val;
+
+	sscanf(buf, "%d %d", &chan_no, &reg_val);
+
+	desc->regs[(AD7124_CFG0_REG + chan_no)].value = reg_val;
+
+	ad7124_write_register(desc,
+			desc->regs[(AD7124_CFG0_REG + chan_no)]);
+
+	return len;
+}
+
+ssize_t ad1724_iio_read_filter(void *device, char *buf, size_t len,
+			const struct iio_ch_info *channel)
+{
+	struct ad7124_dev	*desc = device;
+	uint32_t		value;
+	uint8_t			flt_no;
+
+	sscanf(buf, "%d", &flt_no);
+
+	ad7124_read_register(desc, &desc->regs[(AD7124_FILT0_REG + flt_no)]);
+	value = desc->regs[(AD7124_FILT0_REG + flt_no)].value;
+
+	return snprintf(buf, len, "%"PRIu32"", value);
+}
+
+ssize_t ad1724_iio_change_filter(void *device, char *buf, size_t len,
+			const struct iio_ch_info *channel)
+{
+	struct ad7124_dev *desc = device;
+	uint8_t			flt_no;
+	uint32_t		reg_val;
+
+	sscanf(buf, "%d %d", &flt_no, &reg_val);
+
+	desc->regs[(AD7124_FILT0_REG + flt_no)].value = reg_val;
+
+	ad7124_write_register(desc,
+			desc->regs[(AD7124_FILT0_REG + flt_no)]);
+
+	return len;
+}
+
+ssize_t ad1724_iio_read_offset(void *device, char *buf, size_t len,
+			const struct iio_ch_info *channel)
+{
+	struct ad7124_dev	*desc = device;
+	uint32_t		value;
+	uint8_t			offset_no;
+
+	sscanf(buf, "%d", &offset_no);
+
+	ad7124_read_register(desc, &desc->regs[(AD7124_OFFS0_REG + offset_no)]);
+	value = desc->regs[(AD7124_OFFS0_REG + offset_no)].value;
+
+	return snprintf(buf, len, "%"PRIu32"", value);
+}
+
+ssize_t ad1724_iio_change_offset(void *device, char *buf, size_t len,
+			const struct iio_ch_info *channel)
+{
+	struct ad7124_dev *desc = device;
+	uint8_t			offset_no;
+	uint32_t		reg_val;
+
+	sscanf(buf, "%d %d", &offset_no, &reg_val);
+
+	desc->regs[(AD7124_OFFS0_REG + offset_no)].value = reg_val;
+
+	ad7124_write_register(desc,
+			desc->regs[(AD7124_OFFS0_REG + offset_no)]);
+
+	return len;
+}
+
+ssize_t ad1724_iio_read_gain(void *device, char *buf, size_t len,
+			const struct iio_ch_info *channel)
+{
+	struct ad7124_dev	*desc = device;
+	uint32_t		value;
+	uint8_t			gain_no;
+
+	sscanf(buf, "%d", &gain_no);
+
+	ad7124_read_register(desc, &desc->regs[(AD7124_GAIN0_REG + gain_no)]);
+	value = desc->regs[(AD7124_GAIN0_REG + gain_no)].value;
+
+	return snprintf(buf, len, "%"PRIu32"", value);
+}
+
+ssize_t ad1724_iio_change_gain(void *device, char *buf, size_t len,
+			const struct iio_ch_info *channel)
+{
+	struct ad7124_dev *desc = device;
+	uint8_t			gain_no;
+	uint32_t		reg_val;
+
+	sscanf(buf, "%d %d", &gain_no, &reg_val);
+
+	desc->regs[(AD7124_GAIN0_REG + gain_no)].value = reg_val;
+
+	ad7124_write_register(desc,
+			desc->regs[(AD7124_GAIN0_REG + gain_no)]);
+
+	return len;
+}
+
+ssize_t ad1724_iio_read_status(void *device, char *buf, size_t len,
+			const struct iio_ch_info *channel)
+{
+	struct ad7124_dev	*desc = device;
+	uint32_t		value;
+
+	ad7124_read_register(desc, &desc->regs[AD7124_STATUS_REG]);
+	value = desc->regs[AD7124_STATUS_REG].value;
+
+	return snprintf(buf, len, "%"PRIu32"", value);
+}
+
+ssize_t ad1724_iio_read_adc_ctrl(void *device, char *buf, size_t len,
+			const struct iio_ch_info *channel)
+{
+	struct ad7124_dev	*desc = device;
+	uint32_t		value;
+
+	ad7124_read_register(desc, &desc->regs[AD7124_ADC_CTRL_REG]);
+	value = desc->regs[AD7124_ADC_CTRL_REG].value;
+
+	return snprintf(buf, len, "%"PRIu32"", value);
+}
+
+ssize_t ad1724_iio_change_adc_ctrl(void *device, char *buf, size_t len,
+			const struct iio_ch_info *channel)
+{
+	struct ad7124_dev *desc = device;
+	uint16_t		reg_val;
+
+	sscanf(buf, "%d", &reg_val);
+
+	desc->regs[AD7124_ADC_CTRL_REG].value = reg_val;
+
+	ad7124_write_register(desc, desc->regs[AD7124_ADC_CTRL_REG]);
+
+	return len;
+}
+
+ssize_t ad1724_iio_read_ioctrl1(void *device, char *buf, size_t len,
+			const struct iio_ch_info *channel)
+{
+	struct ad7124_dev	*desc = device;
+	uint32_t		value;
+
+	ad7124_read_register(desc, &desc->regs[AD7124_IO_CTRL1_REG]);
+	value = desc->regs[AD7124_IO_CTRL1_REG].value;
+
+	return snprintf(buf, len, "%"PRIu32"", value);
+}
+
+ssize_t ad1724_iio_change_ioctrl1(void *device, char *buf, size_t len,
+			const struct iio_ch_info *channel)
+{
+	struct ad7124_dev *desc = device;
+	uint32_t		reg_val;
+
+	sscanf(buf, "%d", &reg_val);
+
+	desc->regs[AD7124_IO_CTRL1_REG].value = reg_val;
+
+	ad7124_write_register(desc, desc->regs[AD7124_IO_CTRL1_REG]);
+
+	return len;
+}
+
+ssize_t ad1724_iio_read_ioctrl2(void *device, char *buf, size_t len,
+			const struct iio_ch_info *channel)
+{
+	struct ad7124_dev	*desc = device;
+	uint32_t		value;
+
+	ad7124_read_register(desc, &desc->regs[AD7124_IO_CTRL2_REG]);
+	value = desc->regs[AD7124_IO_CTRL2_REG].value;
+
+	return snprintf(buf, len, "%"PRIu32"", value);
+}
+
+ssize_t ad1724_iio_change_ioctrl2(void *device, char *buf, size_t len,
+			const struct iio_ch_info *channel)
+{
+	struct ad7124_dev *desc = device;
+	uint16_t		reg_val;
+
+	sscanf(buf, "%d", &reg_val);
+
+	desc->regs[AD7124_IO_CTRL2_REG].value = reg_val;
+
+	ad7124_write_register(desc, desc->regs[AD7124_IO_CTRL2_REG]);
+
+	return len;
+}
+
+ssize_t ad1724_iio_read_id(void *device, char *buf, size_t len,
+			const struct iio_ch_info *channel)
+{
+	struct ad7124_dev	*desc = device;
+	uint32_t		value;
+
+	ad7124_read_register(desc, &desc->regs[AD7124_ID_REG]);
+	value = desc->regs[AD7124_ID_REG].value;
+
+	return snprintf(buf, len, "%"PRIu32"", value);
+}
+
+ssize_t ad1724_iio_read_error(void *device, char *buf, size_t len,
+			const struct iio_ch_info *channel)
+{
+	struct ad7124_dev	*desc = device;
+	uint32_t		value;
+
+	ad7124_read_register(desc, &desc->regs[AD7124_ERR_REG]);
+	value = desc->regs[AD7124_ERR_REG].value;
+
+	return snprintf(buf, len, "%"PRIu32"", value);
+}
+
+ssize_t ad1724_iio_read_error_en(void *device, char *buf, size_t len,
+			const struct iio_ch_info *channel)
+{
+	struct ad7124_dev	*desc = device;
+	uint32_t		value;
+
+	ad7124_read_register(desc, &desc->regs[AD7124_ERREN_REG]);
+	value = desc->regs[AD7124_ERREN_REG].value;
+
+	return snprintf(buf, len, "%"PRIu32"", value);
+}
+
+ssize_t ad1724_iio_change_error_en(void *device, char *buf, size_t len,
+			const struct iio_ch_info *channel)
+{
+	struct ad7124_dev *desc = device;
+	uint32_t		reg_val;
+
+	sscanf(buf, "%d", &reg_val);
+
+	desc->regs[AD7124_ERREN_REG].value = reg_val;
+
+	ad7124_write_register(desc, desc->regs[AD7124_ERREN_REG]);
+
+	return len;
+}
+
+
+ssize_t ad1724_iio_read_chan_setup(void *device, char *buf, size_t len,
+			const struct iio_ch_info *channel)
+{
+	struct ad7124_dev	*desc = device;
+	uint32_t		value;
+
+	ad7124_read_register(desc,
+			&desc->regs[(AD7124_CH0_MAP_REG + channel->ch_num)]);
+	value = desc->regs[(AD7124_CH0_MAP_REG + channel->ch_num)].value;
+
+	return snprintf(buf, len, "%"PRIu32"", ((value >> 12) & 0x7));
+}
+
+ssize_t ad1724_iio_change_chan_setup(void *device, char *buf, size_t len,
+			const struct iio_ch_info *channel)
+{
+	struct ad7124_dev *desc = device;
+	uint16_t		reg_val;
+
+	sscanf(buf, "%d", &reg_val);
+
+	desc->regs[AD7124_CH0_MAP_REG + channel->ch_num].value &=
+		~AD7124_CH_MAP_REG_SETUP(0x7);
+	desc->regs[AD7124_CH0_MAP_REG + channel->ch_num].value |=
+		AD7124_CH_MAP_REG_SETUP(reg_val);
+
+	ad7124_write_register(desc,
+			desc->regs[AD7124_CH0_MAP_REG + channel->ch_num]);
+
+	return len;
+}
+
+ssize_t ad1724_iio_read_chan_ainp(void *device, char *buf, size_t len,
+			const struct iio_ch_info *channel)
+{
+	struct ad7124_dev	*desc = device;
+	uint32_t		value;
+
+	ad7124_read_register(desc,
+			&desc->regs[(AD7124_CH0_MAP_REG + channel->ch_num)]);
+	value = desc->regs[(AD7124_CH0_MAP_REG + channel->ch_num)].value;
+
+	return snprintf(buf, len, "%"PRIu32"", ((value >> 5) & 0x1f));
+}
+
+ssize_t ad1724_iio_change_chan_ainp(void *device, char *buf, size_t len,
+			const struct iio_ch_info *channel)
+{
+	struct ad7124_dev *desc = device;
+	uint16_t		reg_val;
+
+	sscanf(buf, "%d", &reg_val);
+
+	desc->regs[AD7124_CH0_MAP_REG + channel->ch_num].value &=
+		~AD7124_CH_MAP_REG_AINP(0x1F);
+	desc->regs[AD7124_CH0_MAP_REG + channel->ch_num].value |=
+		AD7124_CH_MAP_REG_AINP(reg_val);
+
+	ad7124_write_register(desc,
+			desc->regs[AD7124_CH0_MAP_REG + channel->ch_num]);
+
+	return len;
+}
+
+ssize_t ad1724_iio_read_chan_ainm(void *device, char *buf, size_t len,
+			const struct iio_ch_info *channel)
+{
+	struct ad7124_dev	*desc = device;
+	uint32_t		value;
+
+	ad7124_read_register(desc,
+			&desc->regs[(AD7124_CH0_MAP_REG + channel->ch_num)]);
+	value = desc->regs[(AD7124_CH0_MAP_REG + channel->ch_num)].value;
+
+	return snprintf(buf, len, "%"PRIu32"", (value & 0x1f));
+}
+
+ssize_t ad1724_iio_change_chan_ainm(void *device, char *buf, size_t len,
+			const struct iio_ch_info *channel)
+{
+	struct ad7124_dev *desc = device;
+	uint16_t		reg_val;
+
+	sscanf(buf, "%d", &reg_val);
+
+	desc->regs[AD7124_CH0_MAP_REG + channel->ch_num].value &=
+		~AD7124_CH_MAP_REG_AINM(0x1F);
+	desc->regs[AD7124_CH0_MAP_REG + channel->ch_num].value |=
+		AD7124_CH_MAP_REG_AINM(reg_val);
+
+	ad7124_write_register(desc,
+			desc->regs[AD7124_CH0_MAP_REG + channel->ch_num]);
+
+	return len;
+}
+
+int32_t iio_ad7124_init(struct iio_ad7124_desc **desc,
+		struct iio_ad7124_init_param *init_param)
+{
+	struct iio_ad7124_desc *ldesc;
+
+	ldesc = calloc(1, sizeof(*ldesc));
+	if (!ldesc)
+		return FAILURE;
+
+	return SUCCESS;
+}
+
+int32_t iio_ad7124_remove(struct iio_ad7124_desc *desc)
+{
+	if (!desc)
+		return FAILURE;
+
+	free(desc);
+
+	return SUCCESS;
+}
+
